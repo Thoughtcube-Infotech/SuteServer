@@ -1,0 +1,108 @@
+{"level":"info","message":"Server running at http://127.0.0.1:3500/","timestamp":"2024-08-07T13:36:35.420Z"}
+{"level":"info","message":"User Iq5Hs4rUweXSvirrAAAB connected","timestamp":"2024-08-07T13:36:58.411Z"}
+{"level":"info","message":"enter Room 8fd6c320-4c2c-404e-8a9b-056e74ef5968 user 358de91c-187c-49ad-9f9b-f303c959fd5d","timestamp":"2024-08-07T13:36:58.440Z"}
+{"0":{"id":"Iq5Hs4rUweXSvirrAAAB","name":"358de91c-187c-49ad-9f9b-f303c959fd5d","room":"8fd6c320-4c2c-404e-8a9b-056e74ef5968"},"level":"info","message":"Users","timestamp":"2024-08-07T13:36:58.441Z"}
+{"level":"info","message":"User GrJhVTM345HeGP81AAAD connected","timestamp":"2024-08-07T13:37:19.864Z"}
+{"level":"info","message":"enter Room 8fd6c320-4c2c-404e-8a9b-056e74ef5968 user 07dc1b3d-bd7e-4a93-a7be-9a851091f411","timestamp":"2024-08-07T13:37:19.867Z"}
+{"0":{"id":"Iq5Hs4rUweXSvirrAAAB","name":"358de91c-187c-49ad-9f9b-f303c959fd5d","room":"8fd6c320-4c2c-404e-8a9b-056e74ef5968"},"1":{"id":"GrJhVTM345HeGP81AAAD","name":"07dc1b3d-bd7e-4a93-a7be-9a851091f411","room":"8fd6c320-4c2c-404e-8a9b-056e74ef5968"},"level":"info","message":"Users","timestamp":"2024-08-07T13:37:19.867Z"}
+{"level":"info","message":"checkUserCall 1","timestamp":"2024-08-07T13:37:55.295Z"}
+{"level":"info","message":"checkUserCall","timestamp":"2024-08-07T13:37:55.296Z"}
+{"level":"info","message":"ONLINE","timestamp":"2024-08-07T13:37:55.297Z"}
+{"level":"info","message":"userCall","timestamp":"2024-08-07T13:37:56.825Z"}
+{"level":"info","message":"Calls","timestamp":"2024-08-07T13:37:56.825Z"}
+{"level":"info","message":"inCall","timestamp":"2024-08-07T13:37:56.826Z"}
+{"level":"info","message":"CALLING","timestamp":"2024-08-07T13:37:56.826Z"}
+{"level":"info","message":"userCallStatus","timestamp":"2024-08-07T13:38:24.612Z"}
+{"level":"info","message":"leaveUserCall","timestamp":"2024-08-07T13:38:26.103Z"}
+{"level":"info","message":"userCallStatus","timestamp":"2024-08-07T13:38:29.234Z"}
+{"level":"info","message":"CANCEL NO user","timestamp":"2024-08-07T13:38:29.235Z"}
+{"level":"info","message":"checkUserCall 1","timestamp":"2024-08-07T13:38:55.943Z"}
+{"level":"info","message":"checkUserCall","timestamp":"2024-08-07T13:38:55.944Z"}
+{"level":"info","message":"ONLINE","timestamp":"2024-08-07T13:38:55.944Z"}
+{"level":"info","message":"userCall","timestamp":"2024-08-07T13:39:01.350Z"}
+{"level":"info","message":"Calls","timestamp":"2024-08-07T13:39:01.350Z"}
+{"level":"info","message":"inCall","timestamp":"2024-08-07T13:39:01.351Z"}
+{"level":"info","message":"CALLING","timestamp":"2024-08-07T13:39:01.351Z"}
+{"level":"info","message":"userCallStatus","timestamp":"2024-08-07T13:39:17.468Z"}
+{"level":"info","message":"userCallStatus","timestamp":"2024-08-07T13:39:41.571Z"}
+{"callID":"07dc1b3d358de91c","id":"Iq5Hs4rUweXSvirrAAAB","level":"info","message":"CANCEL","timestamp":"2024-08-07T13:39:41.572Z","userID":"358de91c-187c-49ad-9f9b-f303c959fd5d"}
+{"level":"info","message":"Leaving call","timestamp":"2024-08-07T13:39:41.573Z"}
+{"level":"info","message":"checkUserCall 1","timestamp":"2024-08-07T13:43:18.967Z"}
+{"level":"info","message":"checkUserCall","timestamp":"2024-08-07T13:43:18.968Z"}
+{"level":"info","message":"ONLINE","timestamp":"2024-08-07T13:43:18.968Z"}
+{"level":"info","message":"userCall","timestamp":"2024-08-07T13:43:19.871Z"}
+{"level":"info","message":"Calls","timestamp":"2024-08-07T13:43:19.871Z"}
+{"level":"info","message":"inCall","timestamp":"2024-08-07T13:43:19.872Z"}
+{"level":"info","message":"CALLING","timestamp":"2024-08-07T13:43:19.872Z"}
+{"level":"info","message":"checkUserCall 1","timestamp":"2024-08-07T14:03:29.520Z"}
+{"level":"info","message":"checkUserCall","timestamp":"2024-08-07T14:03:29.529Z"}
+{"level":"info","message":"ONLINE","timestamp":"2024-08-07T14:03:29.529Z"}
+{"level":"info","message":"userCall","timestamp":"2024-08-07T14:03:32.477Z"}
+{"0":{"callID":"07dc1b3d358de91c","id":"GrJhVTM345HeGP81AAAD","userID":"07dc1b3d-bd7e-4a93-a7be-9a851091f411"},"level":"info","message":"Calls","timestamp":"2024-08-07T14:03:32.478Z"}
+{"0":{"callID":"07dc1b3d358de91c","id":"GrJhVTM345HeGP81AAAD","userID":"07dc1b3d-bd7e-4a93-a7be-9a851091f411"},"level":"info","message":"inCall","timestamp":"2024-08-07T14:03:32.485Z"}
+{"level":"info","message":"INCALL","timestamp":"2024-08-07T14:03:32.488Z"}
+{"level":"info","message":"userCall","timestamp":"2024-08-07T14:03:32.490Z"}
+{"0":{"callID":"07dc1b3d358de91c","id":"GrJhVTM345HeGP81AAAD","userID":"07dc1b3d-bd7e-4a93-a7be-9a851091f411"},"level":"info","message":"Calls","timestamp":"2024-08-07T14:03:32.491Z"}
+{"0":{"callID":"07dc1b3d358de91c","id":"GrJhVTM345HeGP81AAAD","userID":"07dc1b3d-bd7e-4a93-a7be-9a851091f411"},"level":"info","message":"inCall","timestamp":"2024-08-07T14:03:32.493Z"}
+{"level":"info","message":"INCALL","timestamp":"2024-08-07T14:03:32.494Z"}
+{"level":"info","message":"leaveUserCall","timestamp":"2024-08-07T14:03:32.988Z"}
+{"level":"info","message":"leaveUserCall","timestamp":"2024-08-07T14:03:32.989Z"}
+{"level":"info","message":"leaveUserCall","timestamp":"2024-08-07T14:03:32.990Z"}
+{"level":"info","message":"leaveUserCall","timestamp":"2024-08-07T14:03:32.992Z"}
+{"level":"info","message":"userCallStatus","timestamp":"2024-08-07T14:03:35.999Z"}
+{"callID":"07dc1b3d358de91c","id":"GrJhVTM345HeGP81AAAD","level":"info","message":"CANCEL","timestamp":"2024-08-07T14:03:35.999Z","userID":"07dc1b3d-bd7e-4a93-a7be-9a851091f411"}
+{"level":"info","message":"Leaving call","timestamp":"2024-08-07T14:03:36.011Z"}
+{"level":"info","message":"userCallStatus","timestamp":"2024-08-07T14:03:36.012Z"}
+{"level":"info","message":"CANCEL NO user","timestamp":"2024-08-07T14:03:36.013Z"}
+{"level":"info","message":"userCallStatus","timestamp":"2024-08-07T14:03:36.013Z"}
+{"level":"info","message":"CANCEL NO user","timestamp":"2024-08-07T14:03:36.013Z"}
+{"level":"info","message":"userCallStatus","timestamp":"2024-08-07T14:03:36.014Z"}
+{"level":"info","message":"CANCEL NO user","timestamp":"2024-08-07T14:03:36.014Z"}
+{"level":"info","message":"User 07dc1b3d-bd7e-4a93-a7be-9a851091f411 logout","timestamp":"2024-08-07T14:03:36.636Z"}
+{"level":"info","message":"User GrJhVTM345HeGP81AAAD disconnected","timestamp":"2024-08-07T14:03:36.789Z"}
+{"level":"info","message":"Success","result":"User Logged Out Succesfully","status":"success","timestamp":"2024-08-07T14:03:37.708Z"}
+{"level":"info","message":"userCallStatus","timestamp":"2024-08-07T14:03:42.354Z"}
+{"level":"info","message":"User 358de91c-187c-49ad-9f9b-f303c959fd5d logout","timestamp":"2024-08-07T14:03:48.631Z"}
+{"level":"info","message":"User Iq5Hs4rUweXSvirrAAAB disconnected","timestamp":"2024-08-07T14:03:48.633Z"}
+{"level":"info","message":"Success","result":"User Logged Out Succesfully","status":"success","timestamp":"2024-08-07T14:03:49.450Z"}
+{"level":"info","message":"Server running at http://127.0.0.1:3500/","timestamp":"2024-08-07T14:04:16.506Z"}
+{"level":"info","message":"User pKXqExJArdCp-LucAAAB connected","timestamp":"2024-08-07T14:04:49.414Z"}
+{"level":"info","message":"enter Room 8fd6c320-4c2c-404e-8a9b-056e74ef5968 user 358de91c-187c-49ad-9f9b-f303c959fd5d","timestamp":"2024-08-07T14:04:49.440Z"}
+{"0":{"id":"pKXqExJArdCp-LucAAAB","name":"358de91c-187c-49ad-9f9b-f303c959fd5d","room":"8fd6c320-4c2c-404e-8a9b-056e74ef5968"},"level":"info","message":"Users","timestamp":"2024-08-07T14:04:49.442Z"}
+{"level":"info","message":"User JVgMFNu3bRlm0yOEAAAD connected","timestamp":"2024-08-07T14:05:02.567Z"}
+{"level":"info","message":"enter Room 8fd6c320-4c2c-404e-8a9b-056e74ef5968 user 07dc1b3d-bd7e-4a93-a7be-9a851091f411","timestamp":"2024-08-07T14:05:02.571Z"}
+{"0":{"id":"pKXqExJArdCp-LucAAAB","name":"358de91c-187c-49ad-9f9b-f303c959fd5d","room":"8fd6c320-4c2c-404e-8a9b-056e74ef5968"},"1":{"id":"JVgMFNu3bRlm0yOEAAAD","name":"07dc1b3d-bd7e-4a93-a7be-9a851091f411","room":"8fd6c320-4c2c-404e-8a9b-056e74ef5968"},"level":"info","message":"Users","timestamp":"2024-08-07T14:05:02.571Z"}
+{"level":"info","message":"checkUserCall 1","timestamp":"2024-08-07T14:08:22.631Z"}
+{"level":"info","message":"checkUserCall","timestamp":"2024-08-07T14:08:22.633Z"}
+{"level":"info","message":"ONLINE","timestamp":"2024-08-07T14:08:22.633Z"}
+{"level":"info","message":"userCall","timestamp":"2024-08-07T14:08:27.515Z"}
+{"level":"info","message":"Calls","timestamp":"2024-08-07T14:08:27.516Z"}
+{"level":"info","message":"inCall","timestamp":"2024-08-07T14:08:27.516Z"}
+{"level":"info","message":"CALLING","timestamp":"2024-08-07T14:08:27.517Z"}
+{"level":"info","message":"userCallStatus","timestamp":"2024-08-07T14:09:12.737Z"}
+{"level":"info","message":"leaveUserCall","timestamp":"2024-08-07T14:09:13.579Z"}
+{"level":"info","message":"userCallStatus","timestamp":"2024-08-07T14:09:16.583Z"}
+{"level":"info","message":"CANCEL NO user","timestamp":"2024-08-07T14:09:16.584Z"}
+{"level":"info","message":"checkUserCall 1","timestamp":"2024-08-07T14:13:06.847Z"}
+{"level":"info","message":"checkUserCall","timestamp":"2024-08-07T14:13:06.847Z"}
+{"level":"info","message":"ONLINE","timestamp":"2024-08-07T14:13:06.848Z"}
+{"level":"info","message":"userCall","timestamp":"2024-08-07T14:13:12.284Z"}
+{"level":"info","message":"Calls","timestamp":"2024-08-07T14:13:12.285Z"}
+{"level":"info","message":"inCall","timestamp":"2024-08-07T14:13:12.285Z"}
+{"level":"info","message":"CALLING","timestamp":"2024-08-07T14:13:12.286Z"}
+{"level":"info","message":"userCallStatus","timestamp":"2024-08-07T14:13:31.866Z"}
+{"callID":"07dc1b3d358de91c","id":"pKXqExJArdCp-LucAAAB","level":"info","message":"CANCEL","timestamp":"2024-08-07T14:13:31.867Z","userID":"358de91c-187c-49ad-9f9b-f303c959fd5d"}
+{"level":"info","message":"Leaving call","timestamp":"2024-08-07T14:13:31.868Z"}
+{"level":"info","message":"checkUserCall 1","timestamp":"2024-08-07T14:14:59.808Z"}
+{"level":"info","message":"checkUserCall","timestamp":"2024-08-07T14:14:59.808Z"}
+{"level":"info","message":"ONLINE","timestamp":"2024-08-07T14:14:59.809Z"}
+{"level":"info","message":"userCall","timestamp":"2024-08-07T14:15:00.716Z"}
+{"level":"info","message":"Calls","timestamp":"2024-08-07T14:15:00.716Z"}
+{"level":"info","message":"inCall","timestamp":"2024-08-07T14:15:00.716Z"}
+{"level":"info","message":"CALLING","timestamp":"2024-08-07T14:15:00.716Z"}
+{"level":"info","message":"User 07dc1b3d-bd7e-4a93-a7be-9a851091f411 logout","timestamp":"2024-08-07T14:25:13.497Z"}
+{"level":"info","message":"User JVgMFNu3bRlm0yOEAAAD disconnected","timestamp":"2024-08-07T14:25:13.647Z"}
+{"level":"info","message":"User 358de91c-187c-49ad-9f9b-f303c959fd5d logout","timestamp":"2024-08-07T14:25:13.651Z"}
+{"level":"info","message":"User pKXqExJArdCp-LucAAAB disconnected","timestamp":"2024-08-07T14:25:13.653Z"}
+{"level":"info","message":"Success","result":"User Logged Out Succesfully","status":"success","timestamp":"2024-08-07T14:25:14.582Z"}
+{"level":"info","message":"Success","result":"User Logged Out Succesfully","status":"success","timestamp":"2024-08-07T14:25:14.586Z"}
