@@ -26,6 +26,7 @@ app.get("/", (req, res) => {
 
 const expressServer = app.listen(PORT);
 logger.info(`Server running at http://127.0.0.1:${PORT}/`);
+
 const updateSession = (empId) => {
   fetch(
     ` ${api_domian}${accounts_api_port}/api/user/UpdateLogout?EmployeeGuid=${empId}`
@@ -41,6 +42,7 @@ const updateRoomSession = (AgId) => {
     .then((response) => response.json())
     .then((data) => logger.info(data));
 };
+
 const getData = (empId) => {
   const request = http.get(
     ` ${api_domian}${accounts_api_port}/api/user/UpdateLogout?EmployeeGuid=${empId}`,
@@ -55,7 +57,7 @@ const getData = (empId) => {
 
       // The whole response has been received. Print out the result.
       response.on("end", () => {
-        ~(data);
+        ~data;
       });
     }
   );
@@ -162,7 +164,8 @@ io.on("connection", (socket) => {
     // //   "message",
     // //   buildMsg(ADMIN, `You have joined the ${user.room} chat room`)
     // // );
-    logger.info("Users", getUsersInRoom(user.room));
+    logger.info("Users ");
+    logger.info(getUsersInRoom(user.room));
 
     // To everyone else
     socket.broadcast
@@ -173,7 +176,7 @@ io.on("connection", (socket) => {
     io.to(user.room).emit("userList", {
       users: getUsersInRoom(user.room),
     });
-   
+
     io.to(user.room).emit("userUpdated", user.room);
     io.to(user.id).emit("userUpdated", user.room);
     // Update rooms list for everyone
@@ -182,16 +185,21 @@ io.on("connection", (socket) => {
     });
   });
   socket.on("groupUpdated", function () {
-    console.log("groupUpdated",socket.id);
-    const user = getUser(socket.id)
-    if(user)
-    io.to(user.room).emit("groupUpdated", user.room);
+    console.log("groupUpdated", socket.id);
+    const user = getUser(socket.id);
+    if (user) io.to(user.room).emit("groupUpdated", user.room);
   });
   // When user disconnects - to all others
   socket.on("disconnect", () => {
+    const Uid = getCallUser(socket.id);
+    if (Uid && Uid.length > 0) {
+      logger.info(`popState up call sess ${Uid[0].id}`);
+      userLeavesCall(socket.id);
+      updateRoomSession(Uid[0].id);
+    }
     const user = getUser(socket.id);
     userLeavesApp(socket.id);
-    userLeavesCall(socket.id);
+   
     if (user) {
       logger.info(`User ${user.name} logout`);
       updateSession(user.name);
@@ -225,84 +233,147 @@ io.on("connection", (socket) => {
   });
 
   socket.on("userMessage", (UserId) => {
-    logger.info("userMessage", UserId);
+    logger.info(`userMessage ${UserId}`);
     const usrId = getUserID(UserId)?.id;
-    logger.info("userMessage", usrId);
+    logger.info(`userMessage ${usrId}`);
     if (usrId) {
       io.to(usrId).emit("userNewMessage", UserId);
     }
   });
   socket.on("GroupMessage", (UserId) => {
-    logger.info("GroupMessage", UserId);
+    logger.info(`GroupMessage ${UserId}`);
     const room = getUser(socket.id)?.room;
-    logger.info("userMessage", room);
+    logger.info(`userMessage ${room}`);
     if (room) {
       io.to(room).emit("userNewMessage", UserId);
     }
   });
-  socket.on("checkUserCall", (UserId) => {
-    logger.info("checkUserCall 1", UserId);
-    const usrId = getUserID(UserId)?.id;
-    logger.info("checkUserCall", usrId);
-    if (usrId) {
-      logger.info("ONLINE", UserId);
-      socket.emit("userCallStatus", "ONLINE");
-    } else {
-      logger.info("OFFLINE", UserId);
-      socket.emit("userCallStatus", "OFFLINE");
-    }
-  });
-  socket.on("leaveUserCall", (callId) => {
-    logger.info("leaveUserCall", callId);
-    userLeavesCall(socket.id);
-  });
 
   socket.on("popState", () => {
-    logger.info("popState", socket.id);
-    const Uid = getCallUser(socket.id)?.id;
+    logger.info(`popState ${socket.id}`);
+    const Uid = getCallUser(socket.id);
     if (Uid && Uid.length > 0) {
-      userLeavesCall(Uid);
-      updateRoomSession(Uid.userID);
+      logger.info(`popState up call sess ${Uid[0].id}`);
+      userLeavesCall(socket.id);
+      updateRoomSession(Uid[0].id);
     }
-    logger.info("Calls", UsersState.calls);
+    logger.info("Calls ");
+    logger.info(UsersState.calls);
     // userLeavesCall(socket.id);
   });
 
-  socket.on("roomCall", (UserId, callID) => {
-    logger.info("roomCall", UserId);
-    logger.info("Calls", UsersState.calls);
+  socket.on("roomCall", (UserId, callID,UserGUID) => {
+    logger.info("roomCall "+ UserId);
+    logger.info("Calls ");
+    logger.info(UsersState.calls);
 
     //const Uid = getUserID(UserId)?.id;
-    activateCall(socket.id, UserId, callID);
+    activateCall(socket.id, UserId, callID,UserGUID);
   });
 
   socket.on("roomLeave", (UserId) => {
-    logger.info("roomLeave", UserId);
+    logger.info("roomLeave "+ UserId);
     const Uid = getCallUserID(UserId)?.id;
     userLeavesCall(Uid);
-   // updateRoomSession(UserId);
-    logger.info("Calls", UsersState.calls);
+    // updateRoomSession(UserId);
+    logger.info("Calls ");
+    logger.info(UsersState.calls);
   });
 
-  socket.on("userCall", (UserId, callID) => {
-    logger.info("userCall", UserId);
-    logger.info("Calls", UsersState.calls);
-   // LeavesCall(callID);
-    const inCall = UsersState.calls.filter((call) => call.userID == UserId);
-    logger.info("inCall", inCall);
-    if (inCall.length > 0) {
-      logger.info("INCALL");
-      socket.emit("userCallStatus", "INCALL");
+  socket.on("checkUserCall", (UserId) => {
+    logger.info("checkUserCall 1 "+ UserId);
+    const usrId = getUserID(UserId)?.id;
+    logger.info("checkUserCall "+ usrId);
+    if (usrId) {
+      logger.info("checkUserCall has user"+ UserId);
+      // io.to(usrId).emit("userIncall", socket.id);
+      const inCall = UsersState.calls.filter((call) => call.userID == UserId || call.UserGUID == UserId);
+      logger.info("inCall ");
+      logger.info(inCall);
+      if (inCall.length > 0) {
+        logger.info("INCALL");
+        io.to(socket.id).emit("userfromCallStatus", "INCALL");
+      } else io.to(socket.id).emit("userfromCallStatus", "ONLINE");
+      //io.to(socket.id).emit("userfromCallStatus", "ONLINE");
     } else {
-      const Uid = getUserID(UserId)?.id;
-      logger.info("CALLING", Uid);
-      io.to(Uid).emit("userCallStatus", "CALLING");
-      activateCall(Uid, UserId, callID);
+      logger.info("OFFLINE", UserId);
+      io.to(socket.id).emit("userfromCallStatus", "OFFLINE");
     }
   });
 
+  socket.on("userIncall", (UserId, status) => {
+    logger.info("userIncall "+ UserId +" "+ status);
+    if (status == "FALSE") {
+      logger.info("userIncall ONLINE");
+      io.to(UserId).emit("userfromCallStatus", "ONLINE");
+    } else {
+      logger.info("userIncall", "INCALL");
+      io.to(UserId).emit("userfromCallStatus", "INCALL");
+    }
+  });
+
+  socket.on("userCall", (UserId, callID) => {
+    logger.info("userCall "+ UserId);
+    logger.info("Calls ");
+    logger.info(UsersState.calls);
+    // LeavesCall(callID);
+    // const inCall = UsersState.calls.filter((call) => call.userID == UserId);
+    // logger.info("inCall", inCall);
+    // if (inCall.length > 0) {
+    //   logger.info("INCALL");
+    //   io.to(socket.id).emit("userfromCallStatus", "INCALL");
+    // } else {
+    const Uid = getUserID(UserId)?.id;
+    logger.info("CALLING "+ Uid);
+    io.to(Uid).emit("userCallStatus", "CALLING");
+
+    const caller = getUser(socket.id)?.name;
+    activateCall(socket.id, caller, callID,'OOOO');
+    activateCall(Uid, UserId, callID,'OOOO');
+    // }
+  });
+
   socket.on("userCallStatus", (fromID, status) => {
-    logger.info("userCallStatus", status);
+    logger.info("userCallStatus "+ status);
+
+    const usrId = getUserID(fromID)?.id;
+    if (status == "ACCEPTED") {
+      // const Uid = getUser(socket.id)?.name;
+      //activateCall(socket.id, Uid, callID);
+
+      io.to(usrId).emit("userfromCallStatus", "ACCEPTED");
+    } else if (status == "REJECTED") {
+      userLeavesCall(socket.id);
+      io.to(usrId).emit("userfromCallStatus", "REJECTED");
+    } else if (status == "ENDED") {
+      if (usrId) {
+        logger.info(" userCallStatus ENDED  "+ usrId);
+        const caller = getCallUser(usrId);
+        logger.info(" userCallStatus ENDED caller ");
+        logger.info(caller);
+
+        if (caller) io.to(usrId).emit("userfromCallStatus", "ENDED");
+        LeavesCall(caller.callID);
+      }
+    } else if (status == "CANCEL") {
+      const otherCaller = UsersState.calls.filter(
+        (call) => call.callID == fromID && call.id != socket.id
+      );
+      if (otherCaller.length > 0) {
+        logger.info(" userCallStatus CANCEL "+ otherCaller[0]);
+        io.to(otherCaller[0].id).emit("userCallStatus", "CANCELED");
+        LeavesCall(fromID);
+        // userLeavesCall(otherCaller[0].id);
+      } else {
+        logger.info("userCallStatus CANCEL NO user");
+      }
+
+      // userLeavesCall(socket.id);
+    }
+  });
+
+  socket.on("userfromCallStatus", (fromID, status) => {
+    logger.info("userfromCallStatus " + status + " " + fromID);
     const usrId = getUserID(fromID)?.id;
     if (status == "ACCEPTED") {
       // const Uid = getUser(socket.id)?.name;
@@ -313,22 +384,42 @@ io.on("connection", (socket) => {
       userLeavesCall(socket.id);
       io.to(usrId).emit("userCallStatus", "REJECTED");
     } else if (status == "CANCEL") {
-      const otherCaller = UsersState.calls.filter((call) => call.callID == fromID && call.id != socket.id);
-      if(otherCaller.length > 0) {
-        logger.info("CANCEL", otherCaller[0]);
+      const otherCaller = UsersState.calls.filter(
+        (call) => call.callID == fromID && call.id != socket.id
+      );
+      if (otherCaller.length > 0) {
+        logger.info("userfromCallStatus CANCEL ");
+        logger.info(otherCaller[0]);
         io.to(otherCaller[0].id).emit("userCallStatus", "CANCELED");
         LeavesCall(fromID);
-       // userLeavesCall(otherCaller[0].id);
-      }else{
-        logger.info("CANCEL NO user");
+        // userLeavesCall(otherCaller[0].id);
       }
-      
-     // userLeavesCall(socket.id);
-      
+    } else if (status == "ENDED") {
+      logger.info("userfromCallStatus in " + status + " " + fromID);
+
+      const otherCaller = UsersState.calls.filter(
+        (call) => call.callID == fromID && call.id != socket.id
+      );
+      if (otherCaller.length > 0) {
+        logger.info("userfromCallStatus ENDED ");
+        logger.info(otherCaller[0]);
+        io.to(otherCaller[0].id).emit("userCallStatus", "ENDED");
+        LeavesCall(fromID);
+      }
+    } else {
+      logger.info("userfromCallStatus CANCEL NO user");
     }
+
+    // userLeavesCall(socket.id);
   });
-  socket.on("callRequest", (UserId,reason) => {
-    logger.info("callRequest", UserId);
+
+  socket.on("leaveUserCall", (callId) => {
+    logger.info("leaveUserCall "+ callId);
+    LeavesCall(callId);
+  });
+
+  socket.on("callRequest", (UserId, reason) => {
+    logger.info("callRequest "+ UserId);
     const usr = getUser(socket.id);
     if (reason == "TO_CALL") {
       io.to(usr.room).emit("userNewMessage", UserId);
@@ -368,12 +459,16 @@ function activateUser(id, name, room) {
   ]);
   return user;
 }
-function activateCall(id, userID, callID) {
-  const callRoom = { id, userID, callID };
+
+function activateCall(id, userID, callID,UserGUID) {
+  const callRoom = { id, userID, callID,UserGUID };
   UsersState.setCalls([
     ...UsersState.calls.filter((call) => call.id !== id),
     callRoom,
   ]);
+  logger.info("activateCall ");
+  logger.info(UsersState.calls);
+
   return callRoom;
 }
 
@@ -385,7 +480,8 @@ function userLeavesCall(id) {
 }
 function LeavesCall(id) {
   UsersState.setCalls(UsersState.calls.filter((user) => user.callID != id));
-  logger.info("Leaving call", UsersState.calls);
+  logger.info("LeavesCall");
+  logger.info(UsersState.calls);
 }
 function getUser(id) {
   return UsersState.users.find((user) => user.id === id);
