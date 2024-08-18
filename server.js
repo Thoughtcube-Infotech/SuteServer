@@ -1,214 +1,121 @@
 import express from "express";
-import http from "http";
 import { Server } from "socket.io";
 import logger from "./logger.js";
-// import path from 'path'
-// import { fileURLToPath } from 'url'
-
-// const __filename = fileURLToPath(import.meta.url)
-// const __dirname = path.dirname(__filename)
 
 const PORT = process.env.PORT || 3500;
 const ADMIN = "Admin";
+const api_domian = "https://sutedevapi.thoughtcubeit.com";
+const api_port = "/rest";
+const accounts_api_port = "/auth";
+
+const updateSession = (empId) => {
+  logger.info(`updateSession ${empId}`);
+  fetch(
+    ` ${api_domian}${accounts_api_port}/api/user/UpdateLogout?EmployeeGuid=${empId}`
+  )
+    .then((response) => response.json())
+    .then((data) => logger.info(`updateSession ${data}`));
+};
+
+const updateRoomSession = (AgId) => {
+  logger.info(`updateRoomSession ${AgId}`);  
+  fetch(`${api_domian}${api_port}/api/Employee/LeaveRoomByAGid?AgId=${AgId}`)
+    .then((response) => response.json())
+    .then((data) => logger.info(`updateRoomSession ${data}`));
+};
+
+const UsersState = {
+  users: [],
+  setUsers: function (newUsersArray) {
+    this.users = newUsersArray;
+  },
+  calls: [],
+  setCalls: function (newCallsArray) {
+    this.calls = newCallsArray;
+  },
+};
 
 const app = express();
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome rta!!!!" });
 });
-//app.use(express.static(path.join(__dirname, "public")))
 
-// const expressServer = app.listen(PORT, () => {
-//   logger.info(`listening on port ${PORT}`);
-//  /// getPost("01A3380B-F8D9-4D00-9EB9-C78AAE1E0D14");
-// });
 const expressServer = app.listen(process.env.PORT);
-logger.info(`Server running at http://127.0.0.1:${process.env.PORT}/`);``
-const updateSession = (empId) => {
-    fetch(
-      ` ${api_domian}${accounts_api_port}/api/user/UpdateLogout?EmployeeGuid=${empId}`
-    )
-      .then((response) => response.json())
-      .then((data) => logger.info(data));
-  };
-  
-  const updateRoomSession = (AgId) => {
-    fetch(
-      ` ${api_domian}${api_port}/api/Employee/LeaveRoomByAGid?EmployeeGuid=${AgId}`
-    )
-      .then((response) => response.json())
-      .then((data) => logger.info(data));
-  };
-  const getData = (empId) => {
-    const request = http.get(
-      ` ${api_domian}${accounts_api_port}/api/user/UpdateLogout?EmployeeGuid=${empId}`,
-      (response) => {
-        // Set the encoding, so we don't get log to the console a bunch of gibberish binary data
-        response.setEncoding("utf8");
-  
-        // As data starts streaming in, add each chunk to "data"
-        response.on("data", (chunk) => {
-          data += chunk;
-        });
-  
-        // The whole response has been received. Print out the result.
-        response.on("end", () => {
-          logger.info(data);
-        });
-      }
-    );
-  };
-  // state
-  
-  // Create the request body
-  const postData = JSON.stringify({
-    title: "DDV",
-    body: "Prasad",
-    userId: 1,
-  });
-  
-  const api_domian = "https://sutedevapi.thoughtcubeit.com";
-  const api_port = "/rest";
-  const accounts_api_port = "/auth";
-  
-  const makePost = (empId) => {
-    let data = "";
-    const options = {
-      hostname: ` ${api_domian}${accounts_api_port}`,
-      path: ` ${api_domian}${accounts_api_port}/api/user/UpdateLogout?EmployeeGuid=${empId}`,
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        //'Content-Length': Buffer.byteLength(postData),
-      },
-    };
-    const request = http.request(options, (response) => {
-      response.setEncoding("utf8");
-  
-      response.on("data", (chunk) => {
-        data += chunk;
-      });
-  
-      response.on("end", () => {
-        logger.info(data);
-      });
-    });
-  
-    request.on("error", (error) => {
-      console.error(error);
-    });
-  
-    // Write data to the request body
-    request.write(postData);
-  
-    request.end();
-  };
-  
-  const UsersState = {
-    users: [],
-    setUsers: function (newUsersArray) {
-      this.users = newUsersArray;
-    },
-    calls: [],
-    setCalls: function (newCallsArray) {
-      this.calls = newCallsArray;
-    },
-  };
-  
-  const io = new Server(expressServer, {
+logger.info(`Server running at http://127.0.0.1:${process.env.PORT}/`);
+
+
+
+
+
+const io = new Server(expressServer, {
   cors: {
-    origin: ["https://sutedev.thoughtcubeit.com", "http://sutedev.thoughtcubeit.com"],
+    origin: [
+      "https://sutedev.thoughtcubeit.com",
+      "http://sutedev.thoughtcubeit.com",
+    ],
   },
 });
- 
-// const io = new Server(expressServer, {
-//   cors: {
-//     origin: ["https://suteqarta.thoughtcubeit.com", "http://suteqarta.thoughtcubeit.com"],
-//   },
-// });
+
+///      START  //////////////////////////////////
 
 io.on("connection", (socket) => {
   logger.info(`User ${socket.id} connected`);
 
-  // Upon connection - only to user
-  ////socket.emit("message", buildMsg(ADMIN, "Welcome to Chat App!"));
+  socket.on("enterRoom", ({ empGuid, name, room }) => {
+    logger.info(`enter Room ${room} ID ${empGuid} user ${name}`);
 
-  socket.on("enterRoom", ({ name, room }) => {
-    logger.info(`enter Room ${room} user ${name}`);
-    // leave previous room
-    const prevRoom = getUser(socket.id)?.room;
-
-    if (prevRoom) {
-      socket.leave(prevRoom);
-      io.to(prevRoom).emit(
-        "message",
-        buildMsg(ADMIN, `${name} has left the room`)
-      );
-    }
-
-    const user = activateUser(socket.id, name, room);
-
-    // Cannot update previous room users list until after the state update in activate user
-    if (prevRoom) {
-      io.to(prevRoom).emit("userList", {
-        users: getUsersInRoom(prevRoom),
-      });
-    }
+    const user = activateUser(socket.id, empGuid, name, room);
 
     // join room
     socket.join(user.room);
 
-    // To user who joined
-    // // socket.emit(
-    // //   "message",
-    // //   buildMsg(ADMIN, `You have joined the ${user.room} chat room`)
-    // // );
     logger.info("Users ");
     logger.info(getUsersInRoom(user.room));
 
-    // To everyone else
-    socket.broadcast
-      .to(user.room)
-      .emit("message", buildMsg(ADMIN, `${user.name} has joined the room`));
-
-    // Update user list for room
-    io.to(user.room).emit("userList", {
-      users: getUsersInRoom(user.room),
-    });
+    // // To everyone else
+    // socket.broadcast
+    //   .to(user.room)
+    //   .emit("message", buildMsg(ADMIN, `${user.name} has joined the room`));
 
     io.to(user.room).emit("userUpdated", user.room);
-    io.to(user.id).emit("userUpdated", user.room);
+    // io.to(user.id).emit("userUpdated", user.room);
     // Update rooms list for everyone
-    io.emit("roomList", {
-      rooms: getAllActiveRooms(),
-    });
+    // io.emit("roomList", {
+    //   rooms: getAllActiveRooms(),
+    // });
   });
+
   socket.on("groupUpdated", function () {
-    console.log("groupUpdated", socket.id);
+    logger.info("groupUpdated " + socket.id);
     const user = getUser(socket.id);
-    if (user) io.to(user.room).emit("groupUpdated", user.room);
+    if (user) {
+      logger.info("groupUpdated room " + user.room);
+      io.to(user.room).emit("groupUpdated", user.room);
+    }
   });
-  // When user disconnects - to all others
+
   socket.on("disconnect", () => {
+    logger.info(`disconnect ${socket.id}`);
+
+    const callers = getCallUser(socket.id);
+    logger.info(`disconnect callers `, callers);
+    logger.info(`disconnect callers length `, typeof callers);
+
+    if (callers) {
+      logger.info(`disconnect up call sess ${callers.Sid}`);
+      userLeavesCall(socket.id);
+      updateRoomSession(callers.agID);
+    }
+
     const user = getUser(socket.id);
     userLeavesApp(socket.id);
-    userLeavesCall(socket.id);
+
     if (user) {
-      logger.info(`User ${user.name} logout`);
-      updateSession(user.name);
+      logger.info(`User ${user.name} - ${user.UserGuid} logout`);
+      updateSession(user.UserGuid);
 
-      // io.to(user.room).emit(
-      //   "message",
-      //   buildMsg(ADMIN, `${user.name} has left the room`)
-      // );
-
-      // io.to(user.room).emit("userList", {
-      //   users: getUsersInRoom(user.room),
-      // });
       io.to(user.room).emit("userUpdated", user.room);
-      // io.emit("roomList", {
-      //   rooms: getAllActiveRooms(),
-      // });
     }
 
     logger.info(`User ${socket.id} disconnected`);
@@ -217,22 +124,30 @@ io.on("connection", (socket) => {
   socket.on("forceDisconnect", function () {
     socket.disconnect(true);
   });
-  // Listening for a message event
-  socket.on("message", ({ name, text }) => {
-    const room = getUser(socket.id)?.room;
-    if (room) {
-      io.to(room).emit("message", buildMsg(name, text));
+
+  socket.on("popState", () => {
+    logger.info(`popState ${socket.id}`);
+    const callers = getCallUser(socket.id);
+    if (callers && callers.length > 0) {
+      logger.info(`popState up call sess ${callers[0].UserGuid}`);
+      userLeavesCall(socket.id);
+      updateRoomSession(callers[0].UserGuid);
     }
+    logger.info("Calls ");
+    logger.info(UsersState.calls);
   });
+
+  /// Messages
 
   socket.on("userMessage", (UserId) => {
     logger.info(`userMessage ${UserId}`);
-    const usrId = getUserID(UserId)?.id;
-    logger.info(`userMessage ${usrId}`);
-    if (usrId) {
-      io.to(usrId).emit("userNewMessage", UserId);
+    const usrSid = getUserID(UserId)?.Sid;
+    logger.info(`userMessage ${usrSid}`);
+    if (usrSid) {
+      io.to(usrSid).emit("userNewMessage", UserId);
     }
   });
+
   socket.on("GroupMessage", (UserId) => {
     logger.info(`GroupMessage ${UserId}`);
     const room = getUser(socket.id)?.room;
@@ -242,50 +157,46 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("popState", () => {
-    logger.info(`popState ${socket.id}`);
-    const Uid = getCallUser(socket.id)?.id;
-    if (Uid && Uid.length > 0) {
-      userLeavesCall(socket.id);
-      updateRoomSession(Uid.userID);
-    }
-    logger.info("Calls ");
-    logger.info(UsersState.calls);
-    // userLeavesCall(socket.id);
-  });
+  /// calls
 
-  socket.on("roomCall", (UserId, callID,UserGUID) => {
-    logger.info("roomCall "+ UserId);
+  socket.on("roomCall", (UUid, callID, UserGUID) => {
+    logger.info("roomCall " + UUid);
     logger.info("Calls ");
     logger.info(UsersState.calls);
 
     //const Uid = getUserID(UserId)?.id;
-    activateCall(socket.id, UserId, callID,UserGUID);
+    activateCall(socket.id, UserGUID, callID, UUid);
   });
 
   socket.on("roomLeave", (UserId) => {
-    logger.info("roomLeave "+ UserId);
-    const Uid = getCallUserID(UserId)?.id;
-    userLeavesCall(Uid);
+    logger.info("roomLeave " + UserId);
+    const Sid = getCallByUserID(UserId)?.id;
+    userLeavesCall(Sid);
     // updateRoomSession(UserId);
     logger.info("Calls ");
     logger.info(UsersState.calls);
   });
 
+  /// 1 to 1 call
+
   socket.on("checkUserCall", (UserId) => {
-    logger.info("checkUserCall 1 "+ UserId);
-    const usrId = getUserID(UserId)?.id;
-    logger.info("checkUserCall "+ usrId);
-    if (usrId) {
-      logger.info("checkUserCall has user"+ UserId);
-      // io.to(usrId).emit("userIncall", socket.id);
-      const inCall = UsersState.calls.filter((call) => call.userID == UserId || call.UserGUID == UserId);
+    logger.info("checkUserCall 1 " + UserId);
+    const usrSId = getUserID(UserId)?.Sid;
+    logger.info("checkUserCall " + usrSId);
+    if (usrSId) {
+      logger.info("checkUserCall has user" + UserId);
+      const inCall = UsersState.calls.filter(
+        (call) => call.UserGuid == UserId || call.agID == UserId
+      );
       logger.info("inCall ");
       logger.info(inCall);
       if (inCall.length > 0) {
         logger.info("INCALL");
         io.to(socket.id).emit("userfromCallStatus", "INCALL");
-      } else io.to(socket.id).emit("userfromCallStatus", "ONLINE");
+      } else {
+        logger.info("checkUserCall user ONLINE");
+        io.to(socket.id).emit("userfromCallStatus", "ONLINE");
+      }
       //io.to(socket.id).emit("userfromCallStatus", "ONLINE");
     } else {
       logger.info("OFFLINE", UserId);
@@ -293,96 +204,72 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("userIncall", (UserId, status) => {
-    logger.info("userIncall "+ UserId +" "+ status);
-    if (status == "FALSE") {
-      logger.info("userIncall ONLINE");
-      io.to(UserId).emit("userfromCallStatus", "ONLINE");
-    } else {
-      logger.info("userIncall", "INCALL");
-      io.to(UserId).emit("userfromCallStatus", "INCALL");
-    }
-  });
-
   socket.on("userCall", (UserId, callID) => {
-    logger.info("userCall "+ UserId);
+    logger.info("userCall " + UserId);
     logger.info("Calls ");
     logger.info(UsersState.calls);
-    // LeavesCall(callID);
-    // const inCall = UsersState.calls.filter((call) => call.userID == UserId);
-    // logger.info("inCall", inCall);
-    // if (inCall.length > 0) {
-    //   logger.info("INCALL");
-    //   io.to(socket.id).emit("userfromCallStatus", "INCALL");
-    // } else {
-    const Uid = getUserID(UserId)?.id;
-    logger.info("CALLING "+ Uid);
-    io.to(Uid).emit("userCallStatus", "CALLING");
 
-    const caller = getUser(socket.id)?.name;
-    activateCall(socket.id, caller, callID,'OOOO');
-    activateCall(Uid, UserId, callID,'OOOO');
-    // }
+    const ToSid = getUserID(UserId)?.Sid;
+    logger.info("CALLING " + ToSid);
+    io.to(ToSid).emit("userCallStatus", "CALLING");
+
+    const fromUserGuid = getUser(socket.id)?.UserGuid;
+    activateCall(socket.id, fromUserGuid, callID, "OOOO");
+    activateCall(ToSid, UserId, callID, "OOOO");
   });
 
   socket.on("userCallStatus", (fromID, status) => {
-    logger.info("userCallStatus "+ status);
+    logger.info("userCallStatus " + status);
 
-    const usrId = getUserID(fromID)?.id;
+    const usrId = getUserID(fromID)?.Sid;
     if (status == "ACCEPTED") {
-      // const Uid = getUser(socket.id)?.name;
-      //activateCall(socket.id, Uid, callID);
-
       io.to(usrId).emit("userfromCallStatus", "ACCEPTED");
     } else if (status == "REJECTED") {
       userLeavesCall(socket.id);
       io.to(usrId).emit("userfromCallStatus", "REJECTED");
     } else if (status == "ENDED") {
       if (usrId) {
-        logger.info(" userCallStatus ENDED  "+ usrId);
+        logger.info(" userCallStatus ENDED  " + usrId);
         const caller = getCallUser(usrId);
         logger.info(" userCallStatus ENDED caller ");
         logger.info(caller);
 
-        if (caller) io.to(usrId).emit("userfromCallStatus", "ENDED");
-        LeavesCall(caller.callID);
+        if (caller) {
+          io.to(usrId).emit("userfromCallStatus", "ENDED");
+          LeavesCall(caller.callID);
+        }
       }
     } else if (status == "CANCEL") {
       const otherCaller = UsersState.calls.filter(
-        (call) => call.callID == fromID && call.id != socket.id
+        (call) => call.callID == fromID && call.Sid != socket.id
       );
       if (otherCaller.length > 0) {
-        logger.info(" userCallStatus CANCEL "+ otherCaller[0]);
-        io.to(otherCaller[0].id).emit("userCallStatus", "CANCELED");
-        LeavesCall(fromID);
+        logger.info(" userCallStatus CANCEL " + otherCaller[0]);
+        io.to(otherCaller[0].Sid).emit("userCallStatus", "CANCELED");
+        LeavesCall(otherCaller[0].callID);
         // userLeavesCall(otherCaller[0].id);
       } else {
         logger.info("userCallStatus CANCEL NO user");
       }
-
-      // userLeavesCall(socket.id);
     }
   });
 
   socket.on("userfromCallStatus", (fromID, status) => {
     logger.info("userfromCallStatus " + status + " " + fromID);
-    const usrId = getUserID(fromID)?.id;
+    const usrId = getUserID(fromID)?.Sid;
     if (status == "ACCEPTED") {
-      // const Uid = getUser(socket.id)?.name;
-      //activateCall(socket.id, Uid, callID);
-
       io.to(usrId).emit("userCallStatus", "ACCEPTED");
     } else if (status == "REJECTED") {
       userLeavesCall(socket.id);
       io.to(usrId).emit("userCallStatus", "REJECTED");
     } else if (status == "CANCEL") {
       const otherCaller = UsersState.calls.filter(
-        (call) => call.callID == fromID && call.id != socket.id
+        (call) => call.callID == fromID && call.Sid != socket.id
       );
       if (otherCaller.length > 0) {
         logger.info("userfromCallStatus CANCEL ");
         logger.info(otherCaller[0]);
-        io.to(otherCaller[0].id).emit("userCallStatus", "CANCELED");
+        io.to(otherCaller[0].Sid).emit("userCallStatus", "CANCELED");
         LeavesCall(fromID);
         // userLeavesCall(otherCaller[0].id);
       }
@@ -390,12 +277,12 @@ io.on("connection", (socket) => {
       logger.info("userfromCallStatus in " + status + " " + fromID);
 
       const otherCaller = UsersState.calls.filter(
-        (call) => call.callID == fromID && call.id != socket.id
+        (call) => call.callID == fromID && call.Sid != socket.id
       );
       if (otherCaller.length > 0) {
         logger.info("userfromCallStatus ENDED ");
         logger.info(otherCaller[0]);
-        io.to(otherCaller[0].id).emit("userCallStatus", "ENDED");
+        io.to(otherCaller[0].Sid).emit("userCallStatus", "ENDED");
         LeavesCall(fromID);
       }
     } else {
@@ -406,56 +293,24 @@ io.on("connection", (socket) => {
   });
 
   socket.on("leaveUserCall", (callId) => {
-    logger.info("leaveUserCall "+ callId);
+    logger.info("leaveUserCall " + callId);
     LeavesCall(callId);
-  });
-
-  socket.on("callRequest", (UserId, reason) => {
-    logger.info("callRequest "+ UserId);
-    const usr = getUser(socket.id);
-    if (reason == "TO_CALL") {
-      io.to(usr.room).emit("userNewMessage", UserId);
-    }
-    if (usrId) {
-      io.to(usrId).emit("userNewMessage", UserId);
-    }
-  });
-
-  // Listen for activity
-  socket.on("activity", (name) => {
-    const room = getUser(socket.id)?.room;
-    if (room) {
-      socket.broadcast.to(room).emit("activity", name);
-    }
   });
 });
 
-function buildMsg(name, text) {
-  return {
-    name,
-    text,
-    time: new Intl.DateTimeFormat("default", {
-      hour: "numeric",
-      minute: "numeric",
-      second: "numeric",
-    }).format(new Date()),
-  };
-}
-
-// User functions
-function activateUser(id, name, room) {
-  const user = { id, name, room };
+function activateUser(Sid, UserGuid, name, room) {
+  const user = { Sid, UserGuid, name, room };
   UsersState.setUsers([
-    ...UsersState.users.filter((user) => user.id !== id),
+    ...UsersState.users.filter((user) => user.Sid !== Sid),
     user,
   ]);
   return user;
 }
 
-function activateCall(id, userID, callID,UserGUID) {
-  const callRoom = { id, userID, callID,UserGUID };
+function activateCall(Sid, UserGuid, callID, agID) {
+  const callRoom = { Sid, UserGuid, callID, agID };
   UsersState.setCalls([
-    ...UsersState.calls.filter((call) => call.id !== id),
+    ...UsersState.calls.filter((call) => call.Sid !== Sid),
     callRoom,
   ]);
   logger.info("activateCall ");
@@ -464,40 +319,36 @@ function activateCall(id, userID, callID,UserGUID) {
   return callRoom;
 }
 
-function userLeavesApp(id) {
-  UsersState.setUsers(UsersState.users.filter((user) => user.id !== id));
-}
-function userLeavesCall(id) {
-  UsersState.setCalls(UsersState.calls.filter((user) => user.id !== id));
-}
-function LeavesCall(id) {
-  UsersState.setCalls(UsersState.calls.filter((user) => user.callID != id));
-  logger.info("LeavesCall");
-  logger.info(UsersState.calls);
-}
-function getUser(id) {
-  return UsersState.users.find((user) => user.id === id);
-}
-
 function getUsersInRoom(room) {
   return UsersState.users.filter((user) => user.room === room);
 }
 
-function getAllActiveRooms() {
-  return Array.from(new Set(UsersState.users.map((user) => user.room)));
+function getUser(id) {
+  return UsersState.users.find((user) => user.Sid === id);
 }
 
-function getUserID(usr) {
-  return UsersState.users.find((user) => user.name === usr);
+function getCallUser(id) {
+  return UsersState.calls.find((user) => user.Sid === id);
 }
 
-function getCallUserID(usr) {
-  return UsersState.calls.find((user) => user.userID === usr);
-}
-function getCallUser(ID) {
-  return UsersState.calls.find((user) => user.id === ID);
+function getUserID(UserID) {
+  return UsersState.users.find((user) => user.UserGuid === UserID);
 }
 
-function getCalls(room) {
-  return UsersState.calls;
+function getCallByUserID(usrId) {
+  return UsersState.calls.find((user) => user.UserGuid === usrId);
+}
+
+function userLeavesApp(id) {
+  UsersState.setUsers(UsersState.users.filter((user) => user.Sid !== id));
+}
+
+function userLeavesCall(id) {
+  UsersState.setCalls(UsersState.calls.filter((user) => user.Sid !== id));
+}
+
+function LeavesCall(Callid) {
+  UsersState.setCalls(UsersState.calls.filter((user) => user.callID != Callid));
+  logger.info("LeavesCall");
+  logger.info(UsersState.calls);
 }
