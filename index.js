@@ -18,7 +18,7 @@ const updateSession = (empId) => {
 };
 
 const updateRoomSession = (AgId) => {
-  logger.info(`updateRoomSession ${AgId}`);  
+  logger.info(`updateRoomSession ${AgId}`);
   fetch(`${api_domian}${api_port}/api/Employee/LeaveRoomByAGid?AgId=${AgId}`)
     .then((response) => response.json())
     .then((data) => logger.info(`updateRoomSession ${data}`));
@@ -42,17 +42,16 @@ app.get("/", (req, res) => {
 });
 
 const expressServer = app.listen(PORT);
-logger.info(`Server running at http://127.0.0.1:${PORT}/`);
+logger.info(`Server running at ${appy}:${PORT}/`);
 
 const io = new Server(expressServer, {
   cors: {
     origin:
       process.env.NODE_ENV === "production"
         ? false
-        : ["http://localhost:3000", "http://127.0.0.1:300"],
+        : ["http://localhost:3000", "http://192.168.7.11:3000"],
   },
 });
-
 
 io.on("connection", (socket) => {
   logger.info(`User ${socket.id} connected`);
@@ -94,11 +93,21 @@ io.on("connection", (socket) => {
     logger.info(`disconnect ${socket.id}`);
 
     const callers = getCallUser(socket.id);
-    logger.info(`disconnect callers `, callers);
-    logger.info(`disconnect callers length `, typeof callers);
+    logger.info(`disconnect callers `);
+    logger.info(callers);
 
     if (callers) {
       logger.info(`disconnect up call sess ${callers.Sid}`);
+
+      const otherCallers = getUsersByCallId(callers.callID);
+      if (otherCallers && otherCallers.length > 0) {        
+        otherCallers.forEach((ousr) => {
+          if (ousr.Sid !== callers.Sid) {
+            logger.info(`disconnect other caller ${ousr.Sid}`);
+            io.to(ousr.Sid).emit("userfromCallStatus", "ENDED");
+          }
+        });
+      }
       userLeavesCall(socket.id);
       updateRoomSession(callers.agID);
     }
@@ -130,6 +139,41 @@ io.on("connection", (socket) => {
     }
     logger.info("Calls ");
     logger.info(UsersState.calls);
+  });
+
+  /// lock
+
+  socket.on("lockCall", (callID, userGuid, Name) => {
+    logger.info(`lockCall ${userGuid}`);
+    // const caller = getUserID(UserId);
+    const callUsers = getUsersByCallId(callID);
+    logger.info(callUsers);
+    if (callUsers && callUsers.length > 0) {
+      callUsers.forEach((user) => {
+        if (user.Sid != socket.id) {
+          logger.info(`lock Reqest to ${user.Sid}`);
+          io.to(user.Sid).emit("lockStatus", "FromAdmit", userGuid, Name);
+        }
+      });
+    }
+  });
+
+  socket.on("toCallerStatus", (callID, status, userGuid) => {
+    logger.info(`toCallerStatus ${status}`);
+    const callUsers = getUsersByCallId(callID);
+    logger.info(callUsers);
+    if (callUsers && callUsers.length > 0) {
+      callUsers.forEach((user) => {
+        if (user.Sid != socket.id) {
+          logger.info(`lock Reqest to ${user.Sid}`);
+          //if (status == "ADMITTED") {
+          if (user.userGuid == userGuid)
+            io.to(user.Sid).emit("lockStatus", status, userGuid, "");
+          else io.to(user.Sid).emit("lockStatus", "DONE", userGuid, "");
+          // }
+        }
+      });
+    }
   });
 
   /// Messages
@@ -346,4 +390,8 @@ function LeavesCall(Callid) {
   UsersState.setCalls(UsersState.calls.filter((user) => user.callID != Callid));
   logger.info("LeavesCall");
   logger.info(UsersState.calls);
+}
+
+function getUsersByCallId(callId) {
+  return UsersState.calls.filter((user) => user.callID === callId);
 }
