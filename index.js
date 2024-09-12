@@ -42,7 +42,7 @@ app.get("/", (req, res) => {
 });
 
 const expressServer = app.listen(PORT);
-logger.info(`Server running at ${appy}:${PORT}/`);
+//logger.info(`Server running at ${appy}:${PORT}/`);
 
 const io = new Server(expressServer, {
   cors: {
@@ -96,21 +96,21 @@ io.on("connection", (socket) => {
     logger.info(`disconnect callers `);
     logger.info(callers);
 
-    if (callers) {
-      logger.info(`disconnect up call sess ${callers.Sid}`);
+    // if (callers) {
+    //   logger.info(`disconnect up call sess ${callers.Sid}`);
 
-      const otherCallers = getUsersByCallId(callers.callID);
-      if (otherCallers && otherCallers.length > 0) {        
-        otherCallers.forEach((ousr) => {
-          if (ousr.Sid !== callers.Sid) {
-            logger.info(`disconnect other caller ${ousr.Sid}`);
-            io.to(ousr.Sid).emit("userfromCallStatus", "ENDED");
-          }
-        });
-      }
-      userLeavesCall(socket.id);
-      updateRoomSession(callers.agID);
-    }
+    //   const otherCallers = getUsersByCallId(callers.callID);
+    //   if (otherCallers && otherCallers.length > 0) {        
+    //     otherCallers.forEach((ousr) => {
+    //       if (ousr.Sid !== callers.Sid) {
+    //         logger.info(`disconnect other caller ${ousr.Sid}`);
+    //         io.to(ousr.Sid).emit("userfromCallStatus", "ENDED");
+    //       }
+    //     });
+    //   }
+    //   userLeavesCall(socket.id);
+    //   updateRoomSession(callers.agID);
+    // }
 
     const user = getUser(socket.id);
     userLeavesApp(socket.id);
@@ -189,11 +189,20 @@ io.on("connection", (socket) => {
 
   socket.on("GroupMessage", (UserId) => {
     logger.info(`GroupMessage ${UserId}`);
-    const room = getUser(socket.id)?.room;
-    logger.info(`userMessage ${room}`);
-    if (room) {
-      io.to(room).emit("userNewMessage", UserId);
-    }
+    const callUsers = getUsersByCallId(UserId);
+    callUsers.forEach((ousr) => {
+      if (ousr.Sid !== socket.id) {
+        logger.info(`userMessage ${ousr.Sid}`);
+        io.to(ousr.Sid).emit("userNewMessage", UserId);
+      }
+    });
+    // const room = getUser(socket.id)?.room;
+    // logger.info(`userMessage ${room}`);
+    // if (room) {
+    //   io.to(room).emit("userNewMessage", UserId);
+    // }
+
+
   });
 
   /// calls
@@ -209,8 +218,8 @@ io.on("connection", (socket) => {
 
   socket.on("roomLeave", (UserId) => {
     logger.info("roomLeave " + UserId);
-    const Sid = getCallByUserID(UserId)?.id;
-    userLeavesCall(Sid);
+    //const Sid = getCallByUserID(UserId)?.id;
+    userLeavesCall(socket.id);
     // updateRoomSession(UserId);
     logger.info("Calls ");
     logger.info(UsersState.calls);

@@ -51,8 +51,8 @@ logger.info(`Server running at http://127.0.0.1:${process.env.PORT}/`);
 const io = new Server(expressServer, {
   cors: {
     origin: [
-      "https://sutedev.thoughtcubeit.com",
-      "http://sutedev.thoughtcubeit.com",
+      "https://sute.thoughtcubeit.com",
+      "http://sute.thoughtcubeit.com",
     ],
   },
 });
@@ -103,21 +103,21 @@ io.on("connection", (socket) => {
     logger.info(`disconnect callers `);
     logger.info(callers);
 
-    // if (callers) {
-    //   logger.info(`disconnect up call sess ${callers.Sid}`);
+    if (callers) {
+      logger.info(`disconnect up call sess ${callers.Sid}`);
 
-    //   const otherCallers = getUsersByCallId(callers.callID);
-    //   if (otherCallers && otherCallers.length > 0) {        
-    //     otherCallers.forEach((ousr) => {
-    //       if (ousr.Sid !== callers.Sid) {
-    //         logger.info(`disconnect other caller ${ousr.Sid}`);
-    //         io.to(ousr.Sid).emit("userfromCallStatus", "ENDED");
-    //       }
-    //     });
-    //   }
-    //   userLeavesCall(socket.id);
-    //   updateRoomSession(callers.agID);
-    // }
+      const otherCallers = getUsersByCallId(callers.callID);
+      if (otherCallers && otherCallers.length > 0) {        
+        otherCallers.forEach((ousr) => {
+          if (ousr.Sid !== callers.Sid) {
+            logger.info(`disconnect other caller ${ousr.Sid}`);
+            io.to(ousr.Sid).emit("userfromCallStatus", "ENDED");
+          }
+        });
+      }
+      userLeavesCall(socket.id);
+      updateRoomSession(callers.agID);
+    }
 
     const user = getUser(socket.id);
     userLeavesApp(socket.id);
@@ -131,7 +131,6 @@ io.on("connection", (socket) => {
 
     logger.info(`User ${socket.id} disconnected`);
   });
-
 
   socket.on("forceDisconnect", function () {
     socket.disconnect(true);
@@ -197,20 +196,11 @@ io.on("connection", (socket) => {
 
   socket.on("GroupMessage", (UserId) => {
     logger.info(`GroupMessage ${UserId}`);
-    const callUsers = getUsersByCallId(UserId);
-    callUsers.forEach((ousr) => {
-      if (ousr.Sid !== socket.id) {
-        logger.info(`userMessage ${ousr.Sid}`);
-        io.to(ousr.Sid).emit("userNewMessage", UserId);
-      }
-    });
-    // const room = getUser(socket.id)?.room;
-    // logger.info(`userMessage ${room}`);
-    // if (room) {
-    //   io.to(room).emit("userNewMessage", UserId);
-    // }
-
-
+    const room = getUser(socket.id)?.room;
+    logger.info(`userMessage ${room}`);
+    if (room) {
+      io.to(room).emit("userNewMessage", UserId);
+    }
   });
 
   /// calls
