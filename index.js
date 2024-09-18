@@ -2,6 +2,8 @@ import express from "express";
 import { Server } from "socket.io";
 import logger from "./logger.js";
 
+//////////           LOCAL SERVER            ///////////////
+
 const PORT = process.env.PORT || 3500;
 const ADMIN = "Admin";
 const api_domian = "https://sutedevapi.thoughtcubeit.com";
@@ -45,6 +47,11 @@ const expressServer = app.listen(PORT);
 //logger.info(`Server running at ${appy}:${PORT}/`);
 
 const io = new Server(expressServer, {
+  allowUpgrades:false,
+  serveClient: false,
+  transports:["websocket"],
+  pingInterval: 10000,
+  pingTimeout: 5000,
   cors: {
     origin:
       process.env.NODE_ENV === "production"
@@ -56,6 +63,9 @@ const io = new Server(expressServer, {
 io.on("connection", (socket) => {
   logger.info(`User ${socket.id} connected`);
 
+  socket.on("ping", ()=> {
+    io.to(socket.id).emit("pong");
+  });
   socket.on("enterRoom", ({ empGuid, name, room }) => {
     logger.info(`enter Room ${room} ID ${empGuid} user ${name}`);
 
@@ -80,7 +90,7 @@ io.on("connection", (socket) => {
     // });
   });
 
-  socket.on("groupUpdated", function () {
+  socket.on("groupUpdated", ()=> {
     logger.info("groupUpdated " + socket.id);
     const user = getUser(socket.id);
     if (user) {
@@ -96,21 +106,10 @@ io.on("connection", (socket) => {
     logger.info(`disconnect callers `);
     logger.info(callers);
 
-    // if (callers) {
-    //   logger.info(`disconnect up call sess ${callers.Sid}`);
-
-    //   const otherCallers = getUsersByCallId(callers.callID);
-    //   if (otherCallers && otherCallers.length > 0) {        
-    //     otherCallers.forEach((ousr) => {
-    //       if (ousr.Sid !== callers.Sid) {
-    //         logger.info(`disconnect other caller ${ousr.Sid}`);
-    //         io.to(ousr.Sid).emit("userfromCallStatus", "ENDED");
-    //       }
-    //     });
-    //   }
-    //   userLeavesCall(socket.id);
-    //   updateRoomSession(callers.agID);
-    // }
+     if (callers) {   
+       userLeavesCall(socket.id);
+      updateRoomSession(callers.agID);
+     }
 
     const user = getUser(socket.id);
     userLeavesApp(socket.id);
@@ -125,7 +124,7 @@ io.on("connection", (socket) => {
     logger.info(`User ${socket.id} disconnected`);
   });
 
-  socket.on("forceDisconnect", function () {
+  socket.on("forceDisconnect", ()=> {
     socket.disconnect(true);
   });
 

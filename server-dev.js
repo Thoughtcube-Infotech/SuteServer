@@ -2,8 +2,8 @@ import express from "express";
 import { Server } from "socket.io";
 import logger from "./logger.js";
 
-const PORT = process.env.PORT || 3500;
-const ADMIN = "Admin";
+//////////           DEV SERVER            ///////////////
+
 const api_domian = "https://sutedevapi.thoughtcubeit.com";
 const api_port = "/rest";
 const accounts_api_port = "/auth";
@@ -18,7 +18,7 @@ const updateSession = (empId) => {
 };
 
 const updateRoomSession = (AgId) => {
-  logger.info(`updateRoomSession ${AgId}`);  
+  logger.info(`updateRoomSession ${AgId}`);
   fetch(`${api_domian}${api_port}/api/Employee/LeaveRoomByAGid?AgId=${AgId}`)
     .then((response) => response.json())
     .then((data) => logger.info(`updateRoomSession ${data}`));
@@ -44,11 +44,7 @@ app.get("/", (req, res) => {
 const expressServer = app.listen(process.env.PORT);
 logger.info(`Server running at http://127.0.0.1:${process.env.PORT}/`);
 
-
-
-
-
-const io = new Server(expressServer, {
+const io = new Server(expressServer, {  
   cors: {
     origin: [
       "https://sutedev.thoughtcubeit.com",
@@ -59,10 +55,12 @@ const io = new Server(expressServer, {
 
 ///      START  //////////////////////////////////
 
-
 io.on("connection", (socket) => {
   logger.info(`User ${socket.id} connected`);
 
+  socket.on("ping", ()=> {
+    io.to(socket.id).emit("pong");
+  });
   socket.on("enterRoom", ({ empGuid, name, room }) => {
     logger.info(`enter Room ${room} ID ${empGuid} user ${name}`);
 
@@ -87,7 +85,7 @@ io.on("connection", (socket) => {
     // });
   });
 
-  socket.on("groupUpdated", function () {
+  socket.on("groupUpdated", ()=> {
     logger.info("groupUpdated " + socket.id);
     const user = getUser(socket.id);
     if (user) {
@@ -103,21 +101,10 @@ io.on("connection", (socket) => {
     logger.info(`disconnect callers `);
     logger.info(callers);
 
-    if (callers) {
-      logger.info(`disconnect up call sess ${callers.Sid}`);
-
-      const otherCallers = getUsersByCallId(callers.callID);
-      if (otherCallers && otherCallers.length > 0) {        
-        otherCallers.forEach((ousr) => {
-          if (ousr.Sid !== callers.Sid) {
-            logger.info(`disconnect other caller ${ousr.Sid}`);
-            io.to(ousr.Sid).emit("userfromCallStatus", "ENDED");
-          }
-        });
-      }
-      userLeavesCall(socket.id);
+     if (callers) {   
+       userLeavesCall(socket.id);
       updateRoomSession(callers.agID);
-    }
+     }
 
     const user = getUser(socket.id);
     userLeavesApp(socket.id);
@@ -132,7 +119,7 @@ io.on("connection", (socket) => {
     logger.info(`User ${socket.id} disconnected`);
   });
 
-  socket.on("forceDisconnect", function () {
+  socket.on("forceDisconnect", ()=> {
     socket.disconnect(true);
   });
 
@@ -196,11 +183,20 @@ io.on("connection", (socket) => {
 
   socket.on("GroupMessage", (UserId) => {
     logger.info(`GroupMessage ${UserId}`);
-    const room = getUser(socket.id)?.room;
-    logger.info(`userMessage ${room}`);
-    if (room) {
-      io.to(room).emit("userNewMessage", UserId);
-    }
+    const callUsers = getUsersByCallId(UserId);
+    callUsers.forEach((ousr) => {
+      if (ousr.Sid !== socket.id) {
+        logger.info(`userMessage ${ousr.Sid}`);
+        io.to(ousr.Sid).emit("userNewMessage", UserId);
+      }
+    });
+    // const room = getUser(socket.id)?.room;
+    // logger.info(`userMessage ${room}`);
+    // if (room) {
+    //   io.to(room).emit("userNewMessage", UserId);
+    // }
+
+
   });
 
   /// calls
@@ -216,8 +212,8 @@ io.on("connection", (socket) => {
 
   socket.on("roomLeave", (UserId) => {
     logger.info("roomLeave " + UserId);
-    const Sid = getCallByUserID(UserId)?.id;
-    userLeavesCall(Sid);
+    //const Sid = getCallByUserID(UserId)?.id;
+    userLeavesCall(socket.id);
     // updateRoomSession(UserId);
     logger.info("Calls ");
     logger.info(UsersState.calls);
